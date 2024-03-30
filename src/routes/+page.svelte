@@ -1,7 +1,7 @@
 <div class="flex items-center justify-center h-screen">
 	<div class="grid grid-cols-3 gap-4">
 		<form method="POST" action="?/subscribe">
-			<input type="hidden" name="id" value="price_1OzfmXDsePVPAueu6YSvMCQN" />
+			<input type="hidden" name="price_id" value="price_1OzfmXDsePVPAueu6YSvMCQN" />
 			<button class="p-5 text-black rounded-full min-w-32 bg-success"> Subscribe</button>
 		</form>
 		<form method="POST" action="?/renew">
@@ -9,6 +9,7 @@
 		</form>
 
 		<form method="POST" action="?/cancel">
+			<input type="hidden" name="email" value="b@b.com" />
 			<button class="p-5 text-black rounded-full min-w-32 bg-error"> Cancel </button>
 		</form>
 	</div>

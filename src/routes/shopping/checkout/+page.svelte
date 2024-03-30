@@ -5,24 +5,19 @@
 
 	export let data;
 
+	let stripeError: boolean = true;
+
 	onMount(async () => {
 		const stripe = await loadStripe(PUBLIC_STRIPE);
-
-		// Since you already have the client_secret from the server-side session,
-		// you can skip the fetch to '/create-checkout-session' and directly use it.
 		const clientSecret = data.client_secret;
 
-		const initialize = async () => {
-			if (stripe) {
-				const checkout = await stripe.initEmbeddedCheckout({
-					clientSecret // Use the clientSecret directly
-				});
-				// Mount Checkout
-				checkout.mount('#checkout');
-			}
-		};
-
-		initialize();
+		if (stripe && clientSecret) {
+			const checkout = await stripe.initEmbeddedCheckout({
+				clientSecret
+			});
+			checkout.mount('#checkout');
+			stripeError = false;
+		}
 	});
 </script>
 
@@ -30,6 +25,8 @@
 	<script src="https://js.stripe.com/v3/"></script>
 </svelte:head>
 
-<div id="checkout">
-	<!-- Checkout will insert the payment form here -->
+<div class="flex items-center justify-center min-h-screen py-12">
+	<div class="p-8 bg-white rounded-lg shadow-xl">
+		<div id="checkout"></div>
+	</div>
 </div>
