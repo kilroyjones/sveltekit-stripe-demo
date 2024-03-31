@@ -1,89 +1,99 @@
 import { Stripe } from 'stripe';
-import { PUBLIC_DOMAIN } from '$env/static/public';
+import { PUBLIC_DOMAIN, PUBLIC_STRIPE } from '$env/static/public';
 import { PRIVATE_STRIPE } from '$env/static/private';
 
 let stripe: Stripe | undefined;
 
 /**
+ * Stripe cancel subscription
+ *
+ * Update the current subscription to stop recurring payements at the end of the
+ * current pay period.
  *
  */
-const cancel = async (email: string): Promise<boolean | undefined> => {
+const cancel = async (subscriptionId: string): Promise<Stripe.Subscription | undefined> => {
 	if (stripe) {
-		// Get customer based on email
-		const customers = await stripe.customers.list({
-			email: email,
-			limit: 1
-		});
-
-		// Get subscription based on the customer
-		if (customers.data.length > 0) {
-			const customer = customers.data[0];
-			const subscriptions = await stripe.subscriptions.list({
-				customer: customer.id,
-				status: 'active',
-				limit: 1
+		try {
+			const subscription = await stripe.subscriptions.update(subscriptionId, {
+				cancel_at_period_end: true
 			});
-
-			// Update the customer's subscription
-			if (subscriptions.data.length > 0) {
-				const subscription = subscriptions.data[0];
-				const updatedSubscription: Stripe.Subscription = await stripe.subscriptions.update(
-					subscription.id,
-					{
-						cancel_at_period_end: true
-					}
-				);
-				return true;
-			}
+			return subscription;
+		} catch (error: any) {
+			console.error(error);
 		}
 	}
-	return false;
 };
 
 /**
+ * Stripe session status
+ *
+ * We use this to check the *payment_status* field to see if it was 'paid' or not.
  *
  */
-const getStatus = async (sessionId: string): Promise<Stripe.Checkout.Session | undefined> => {
+const getSession = async (sessionId: string): Promise<Stripe.Checkout.Session | undefined> => {
 	if (stripe) {
-		const session = await stripe.checkout.sessions.retrieve(sessionId);
-		if (session) {
-			return session;
+		try {
+			return await stripe.checkout.sessions.retrieve(sessionId);
+		} catch (error: any) {
+			console.error(error);
 		}
 	}
 };
 
 /**
+ * Stripe subscription status
+ *
+ * We use this to check the subscription status and change the home page accordingly.
+ *
+ */
+const getSubscription = async (
+	subscriptionId: string
+): Promise<Stripe.Subscription | undefined> => {
+	if (stripe) {
+		try {
+			return await stripe.subscriptions.retrieve(subscriptionId);
+		} catch (error: any) {
+			console.error(error);
+		}
+	}
+};
+
+/**
+ * Stripe embedded subscribe
+ *
+ * This is returns an embedded subscription mode for a item of *priceId*. This could, alternatively
+ * redirect user's the Stripe site to pay or to a custom form.
  *
  */
 const subscribe = async (priceId: string): Promise<Stripe.Checkout.Session | undefined> => {
 	if (stripe) {
-		return await stripe.checkout.sessions.create({
-			ui_mode: 'embedded',
-			line_items: [
-				{
-					price: priceId,
-					quantity: 1
-				}
-			],
-			mode: 'subscription',
-			return_url: `${PUBLIC_DOMAIN}/shopping/subscribed?session_id={CHECKOUT_SESSION_ID}`
-		});
+		try {
+			return await stripe.checkout.sessions.create({
+				ui_mode: 'embedded',
+				line_items: [
+					{
+						price: priceId,
+						quantity: 1
+					}
+				],
+				mode: 'subscription',
+				return_url: `${PUBLIC_DOMAIN}/shopping/subscribed?session_id={CHECKOUT_SESSION_ID}`
+			});
+		} catch (error: any) {
+			console.error(error);
+		}
 	}
 };
 
-// const getSessionStatus = async (
-// 	id: string
-// ): Promise<StripeLib.Response<StripeLib.Checkout.Session> | undefined> => {
-// 	if (stripe) {
-// 		return await stripe.checkout.sessions.retrieve(id);
-// 	}
-// };
-
 /**
+ * Intialize
+ *
+ * We run this at start up in order to check if the necessary environemt
+ * variables exist. It doesn't guarantee they are valid, though.
  *
  */
 const initializeStripe = async (): Promise<boolean> => {
-	if (PRIVATE_STRIPE) {
+	if (PRIVATE_STRIPE && PUBLIC_STRIPE) {
 		stripe = new Stripe(PRIVATE_STRIPE);
 		return true;
 	}
@@ -101,6 +111,7 @@ const initializeStripe = async (): Promise<boolean> => {
 
 export const StripeService = {
 	cancel,
-	getStatus,
+	getSession,
+	getSubscription,
 	subscribe
 };

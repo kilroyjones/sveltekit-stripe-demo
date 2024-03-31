@@ -1,6 +1,12 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 </script>
 
-<div class="flex items-center justify-center min-h-screen">
-	<div>Your subscription will be canceled at the end of your current billing cycle</div>
+<div class="flex flex-col items-center justify-center min-h-screen">
+	<div class="mb-6">
+		Your subscription will be canceled at the end of your current billing cycle
+	</div>
+	<button class="p-5 text-white rounded-full min-w-32 bg-primary" on:click={() => goto('/')}>
+		Home
+	</button>
 </div>

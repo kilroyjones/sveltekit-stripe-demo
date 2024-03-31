@@ -1,4 +1,3 @@
-// src/hooks.server.ts
 import type { Handle } from '@sveltejs/kit';
 import type { SessionData } from '$lib/types';
 
