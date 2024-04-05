@@ -2,7 +2,7 @@
 
 This is a demo showing how to intergrate subscriptions with SvelteKit and Stripe. [Here](https://www.thespatula.io/projects/sveltekit-stripe-demo/demo/) a full write up on how everything works, while below details how to run it.
 
-![Demo](https://github.com/kilroyjones/sveltekit-stripe-demo/demo.png)
+![Demo](./demo.png)
 
 ### Running
 
