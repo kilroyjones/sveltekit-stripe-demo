@@ -1,11 +1,11 @@
 // Modules and libraries
-import { StripeService } from '$lib/services/stripe.service';
-import { redirect } from '@sveltejs/kit';
+import { StripeService } from "$lib/services/stripe.service";
+import { redirect } from "@sveltejs/kit";
 
 // Types and variables
-import type { PageServerLoad } from './$types';
-import { db } from '$lib/database/client';
-import type Stripe from 'stripe';
+import type { PageServerLoad } from "./$types";
+import { db } from "$lib/database/client";
+import type Stripe from "stripe";
 
 /**
  * Subscribed load
@@ -16,40 +16,40 @@ import type Stripe from 'stripe';
  * route based on that.
  *
  */
-export const load: PageServerLoad = async ({ locals, url }) => {
-	const sessionId = url.searchParams.get('session_id');
-	if (sessionId == null) {
-		redirect(302, '/shopping/error');
-	}
+export const load: PageServerLoad = async ({ url }) => {
+  const sessionId = url.searchParams.get("session_id");
+  if (sessionId == null) {
+    redirect(302, "/shopping/error");
+  }
 
-	const session = await StripeService.getSession(sessionId);
-	if (session?.payment_status != 'paid') {
-		redirect(302, '/shopping/error');
-	}
+  const session = await StripeService.getSession(sessionId);
+  if (session?.payment_status != "paid") {
+    redirect(302, "/shopping/error");
+  }
 
-	/**
-	 * If everything worked we need to save the payment information for that
-	 * particular user, though if we can't find the user we should roll back the
-	 * charge. This rollback has not been implemented.
-	 *
-	 */
-	let user = db.getUser();
+  /**
+   * If everything worked we need to save the payment information for that
+   * particular user, though if we can't find the user we should roll back the
+   * charge. This rollback has not been implemented.
+   *
+   */
+  let user = db.getUser();
 
-	if (user) {
-		user.customerId = session.customer as string;
-		user.subscriptionId = session.subscription as string;
-		user.subscriptionStartDate = new Date().getTime();
+  if (user) {
+    user.customerId = session.customer as string;
+    user.subscriptionId = session.subscription as string;
+    user.subscriptionStartDate = new Date().getTime();
 
-		const subscription = (await StripeService.getSubscription(
-			user.subscriptionId
-		)) as Stripe.Subscription;
+    const subscription = (await StripeService.getSubscription(
+      user.subscriptionId
+    )) as Stripe.Subscription;
 
-		user.subscriptionStatus = subscription.status;
+    user.subscriptionStatus = subscription.status;
 
-		return db.updateUser(user);
-	} else {
-		// Insert payment rollback
-	}
+    return db.updateUser(user);
+  } else {
+    // Insert payment rollback
+  }
 
-	redirect(302, '/shopping/error');
+  redirect(302, "/shopping/error");
 };

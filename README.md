@@ -1,38 +1,39 @@
-# create-svelte
+### Stripe subscription with SvelteKit
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+This is a demo showing how to intergrate subscriptions with SvelteKit and Stripe. [Here](https://www.thespatula.io/projects/sveltekit-stripe-demo/demo/) a full write up on how everything works, while below details how to run it.
 
-## Creating a project
+![Demo](https://github.com/kilroyjones/sveltekit-stripe-demo/demo.png)
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Running
+
+To run this application you'll need to first clone the repo:
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+git clone https://github.com/kilroyjones/sveltekit-stripe-demo
 ```
 
-## Developing
+Then cd into the folder and install the libraries:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```bash
+cd sveltekit-stripe-demo
+npm i
+```
+
+Next, change the **template.env** to **.env** and add your public and private Stripe test keys:
+
+```bash
+PUBLIC_STRIPE=
+PRIVATE_STRIPE=
+PUBLIC_DOMAIN=http://localhost:5173
+
+```
+
+You can leave the domain unless you plan on running elsewhere.
+
+After that you should be good to go:
 
 ```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Navigate to **http://localhost:5173** and you should be presented with a _subscribe_ button.

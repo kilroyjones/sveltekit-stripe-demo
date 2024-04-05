@@ -1,4 +1,4 @@
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad } from "./$types";
 
 /**
  * Checkout load
@@ -7,8 +7,11 @@ import type { PageServerLoad } from './$types';
  * the embedded Stripe checkout form can be accessed.
  *
  */
-export const load: PageServerLoad = ({ locals }) => {
-	return {
-		client_secret: locals.session.client_secret
-	};
+export const load: PageServerLoad = ({ cookies }) => {
+  const clientSecret = cookies.get("client-secret");
+  if (clientSecret) {
+    return {
+      clientSecret: clientSecret,
+    };
+  }
 };
